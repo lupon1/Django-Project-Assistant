@@ -1,0 +1,1 @@
+pywinstyles==1.8

@@ -1,0 +1,46 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# PIP files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual envs
+.env
+.env.* 
+.envrc
+
+# Pytest
+.cache/
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+
+# Custom
+config.json
