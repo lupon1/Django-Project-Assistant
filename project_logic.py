@@ -201,7 +201,7 @@ def patch_settings(settings_path: Path, django_packages: list, custom_user_flag:
 def create_accounts_user_model(accounts_dir: Path):
     """Creates files for a custom user model by copying from code templates."""
     accounts_dir.mkdir(parents=True, exist_ok=True)
-    source_templates_dir = Path("code_templates") / "accounts"
+    source_templates_dir = Path(os.path.dirname(__file__)) / "code_templates" / "accounts"
     template_files = { "models.py.template": "models.py", "admin.py.template": "admin.py", "apps.py.template": "apps.py" }
 
     for template_name, final_name in template_files.items():
@@ -240,7 +240,7 @@ def patch_project_urls(project_path: Path, project_name: str):
 
 def create_templates(template_collection: str, project_path: Path, custom_user_flag: bool):
     """Copies template files from a source directory based on the selected collection."""
-    base_templates = Path("html_templates") / template_collection
+    base_templates = Path(os.path.dirname(__file__)) / "html_templates" / template_collection
     if not base_templates.exists():
         raise FileNotFoundError(f"Template collection '{template_collection}' not found.")
     
