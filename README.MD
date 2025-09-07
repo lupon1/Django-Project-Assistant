@@ -24,8 +24,8 @@ This application is designed to be run from the source code. Follow these steps 
 ### 1. Clone the Repository
 First, clone this repository to your local machine:
 ```sh
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
+git clone https://github.com/lupon1/Django-Project-Assistant.git
+cd Django-Project-Assistant
 ```
 
 ### 2. Create and Activate a Virtual Environment
@@ -33,7 +33,7 @@ It is highly recommended to run this application in its own dedicated virtual en
 
 ```sh
 # Create the virtual environment
-python -m venv venv
+uv venv
 
 # Activate it
 # On Windows (cmd.exe):
@@ -45,9 +45,10 @@ source venv/bin/activate
 ### 3. Install Requirements (Windows Only)
 If you are on Windows, there is one dependency for themed window styles.
 ```sh
-pip install pywinstyles
+uv pip install pywinstyles
 ```
 On Linux and macOS, no Python dependencies are required.
+On Linux, it may be necessary install the tkinter libraries
 
 ### 4. Running the Application
 Once the environment is active, you can launch the application with:

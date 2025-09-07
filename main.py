@@ -232,11 +232,17 @@ class DjangoAssistantApp:
     
     
     def _create_console_output(self, parent):
+        if platform.system() == "Windows":
+            rowheight = 20
+        else:
+            rowheight = 40
+        style = ttk.Style()
+        style.configure("Custom.Treeview", rowheight=rowheight)
         treeFrame = ttk.Frame(parent)
         treeFrame.grid(row=4, column=0, columnspan=3, sticky="nsew", padx=6, pady=10)
         treeScroll = ttk.Scrollbar(treeFrame)
         treeScroll.pack(side="right", fill="y")
-        self.console_tree = ttk.Treeview(treeFrame, show="headings", columns=("message",), selectmode="none", yscrollcommand=treeScroll.set)
+        self.console_tree = ttk.Treeview(treeFrame, show="headings", columns=("message",), selectmode="none", yscrollcommand=treeScroll.set, style="Custom.Treeview")
         self.console_tree.pack(expand=True, fill="both")
         self.console_tree.heading("message", text=" Console Output:", anchor="w")
         treeScroll.config(command=self.console_tree.yview)

@@ -1,8 +1,3 @@
-"""
-Provides custom, themed dialog boxes for the application, ensuring a
-consistent look and feel.
-"""
-
 import tkinter as tk
 from tkinter import ttk
 import platform
@@ -19,25 +14,19 @@ except ImportError:
 class BaseDialog(tk.Toplevel):
     """
     A base class for custom modal dialogs that are themed and cross-platform.
-    
-    It handles window creation, centering, theming, and modality. Subclasses
-    are responsible for adding specific content and buttons.
     """
     def __init__(self, parent, title="", message=""):
         super().__init__(parent)
         self.parent = parent
         self.result = None
-
-        # Prepare the window but keep it hidden until fully configured.
         self.withdraw()
-
         self.title(title)
         self.resizable(False, False)
 
         try:
             self.iconphoto(True, parent.iconphoto())
         except tk.TclError:
-            pass # Parent window might not have an icon set.
+            pass 
         
         self.main_frame = ttk.Frame(self, padding=(20, 20, 20, 10))
         self.main_frame.pack(expand=True, fill="both")
@@ -53,7 +42,6 @@ class BaseDialog(tk.Toplevel):
 
 
     def _apply_titlebar_theme(self):
-        """Applies dark theme to the title bar on Windows, if available."""
         if PYWINSTYLES_AVAILABLE and platform.system() == "Windows":
             try:
                 version = sys.getwindowsversion()
@@ -62,33 +50,44 @@ class BaseDialog(tk.Toplevel):
                 elif version.major == 10:
                     pywinstyles.apply_style(self, "dark")
             except Exception:
-                pass # Fail silently if styling fails.
+                pass
 
 
     def _center_window(self):
-        """Centers the dialog on the screen."""
+        """
+        Centers the dialog relative to its parent window using the requested size,
+        which works reliably across all platforms, including scaled Linux desktops.
+        """
+        # Force Tkinter to calculate the required size for all widgets.
         self.update_idletasks()
-        screen_w = self.winfo_screenwidth()
-        screen_h = self.winfo_screenheight()
-        dialog_w = self.winfo_width()
-        dialog_h = self.winfo_height()
-        x = (screen_w // 2) - (dialog_w // 2)
-        y = (screen_h // 2) - (dialog_h // 2)
-        self.geometry(f"+{x}+{y}")
+
+        # Get the CALCULATED required size, not the ACTUAL size (which might be 1x1).
+        dialog_w = self.winfo_reqwidth()
+        dialog_h = self.winfo_reqheight()
+
+        # Get the parent window's position and size.
+        parent_x = self.parent.winfo_x()
+        parent_y = self.parent.winfo_y()
+        parent_w = self.parent.winfo_width()
+        parent_h = self.parent.winfo_height()
+
+        # Calculate the centered position relative to the parent.
+        x = parent_x + (parent_w // 2) - (dialog_w // 2)
+        y = parent_y + (parent_h // 2) - (dialog_h // 2)
+        
+        self.geometry(f"{dialog_w}x{dialog_h}+{x}+{y}")
 
 
     def _finalize_and_show(self):
         """
-        Performs final setup and displays the window.
-        This prevents a "flash of unstyled content" by showing the window
-        only after it is fully built, centered, and themed.
+        Performs final setup and displays the window, ensuring correct centering.
         """
-        self._center_window()
         self._apply_titlebar_theme()
-        self.grab_set()  # Make the dialog modal.
-        self.deiconify() # Show the prepared window.
+        self.grab_set()
+        self._center_window() # Center just before showing
+        self.deiconify()
 
-    # --- Button callback methods ---
+
     def _on_ok(self, event=None):
         self.result = True
         self.destroy()
@@ -110,10 +109,9 @@ class BaseDialog(tk.Toplevel):
 
 
 class InfoDialog(BaseDialog):
-    """A simple dialog to show information, warnings, or errors."""
     def __init__(self, parent, title, message):
         super().__init__(parent, title, message)
-        self.button_frame.columnconfigure(0, weight=1) # Spacer for right alignment.
+        self.button_frame.columnconfigure(0, weight=1)
         ok_button = ttk.Button(self.button_frame, text="OK", command=self._on_ok, style="Accent.TButton")
         ok_button.grid(row=0, column=1, padx=5)
         ok_button.focus_set()
@@ -124,25 +122,21 @@ class InfoDialog(BaseDialog):
 
 
 def showinfo(parent, title, message):
-    """Displays a themed information dialog."""
     dialog = InfoDialog(parent, title, message)
     parent.wait_window(dialog)
 
 
 def showwarning(parent, title, message):
-    """Displays a themed warning dialog."""
     dialog = InfoDialog(parent, f"{title}", message)
     parent.wait_window(dialog)
 
 
 def showerror(parent, title, message):
-    """Displays a themed error dialog."""
     dialog = InfoDialog(parent, f"{title}", message)
     parent.wait_window(dialog)
 
 
 class AskYesNoDialog(BaseDialog):
-    """A dialog that asks a Yes/No question."""
     def __init__(self, parent, title, message):
         super().__init__(parent, title, message)
         self.button_frame.columnconfigure(0, weight=1)
@@ -159,19 +153,16 @@ class AskYesNoDialog(BaseDialog):
 
 
 def askyesno(parent, title, message):
-    """Displays a themed Yes/No dialog and returns a boolean result."""
     dialog = AskYesNoDialog(parent, title, message)
     parent.wait_window(dialog)
     return dialog.result
 
 
 class AskSuperuserDialog(BaseDialog):
-    """A dialog to securely ask for superuser credentials."""
     def __init__(self, parent, title="Create Superuser"):
         super().__init__(parent, title)
         form_frame = ttk.Frame(self.main_frame)
         form_frame.columnconfigure(1, weight=1)
-
         ttk.Label(form_frame, text="Email:").grid(row=0, column=0, sticky="w", pady=5)
         self.email_entry = ttk.Entry(form_frame)
         self.email_entry.grid(row=0, column=1, sticky="ew", padx=(5,0), pady=5)
@@ -184,7 +175,6 @@ class AskSuperuserDialog(BaseDialog):
         self.error_label = ttk.Label(form_frame, text="", foreground="red")
         self.error_label.grid(row=3, column=0, columnspan=2, pady=(5, 0))
         form_frame.pack(padx=10, fill="x", expand=True)
-
         self.button_frame.columnconfigure(0, weight=1)
         self.button_frame.columnconfigure(1, weight=1)
         ok_button = ttk.Button(self.button_frame, text="Create", command=self._on_ok_credentials, style="Accent.TButton")
@@ -192,7 +182,6 @@ class AskSuperuserDialog(BaseDialog):
         cancel_button = ttk.Button(self.button_frame, text="Cancel", command=self._on_close)
         cancel_button.grid(row=0, column=0, padx=(0,5), sticky="ew")
         self.button_frame.pack(fill="x", padx=10, pady=5)
-        
         self.email_entry.focus_set()
         self.bind("<Return>", self._on_ok_credentials)
         self.bind("<Escape>", self._on_close)
@@ -200,7 +189,6 @@ class AskSuperuserDialog(BaseDialog):
 
 
     def _on_ok_credentials(self, event=None):
-        """Validates input and sets the result if valid."""
         email, password, confirm = self.email_entry.get().strip(), self.pass_entry.get(), self.confirm_entry.get()
         if not email or "@" not in email or "." not in email:
             self.error_label.config(text="Please enter a valid email address.")
@@ -216,7 +204,6 @@ class AskSuperuserDialog(BaseDialog):
 
 
 def asksuperuser(parent, title):
-    """Displays a themed superuser credential dialog and returns the result."""
     dialog = AskSuperuserDialog(parent, title)
     parent.wait_window(dialog)
     return dialog.result
